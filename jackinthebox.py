@@ -2,7 +2,14 @@
 #!/usr/bin/python
 import RPi.GPIO as GPIO
 import time
+import requests
 
+import ast
+from ast import literal_eval 
+
+url = 'https://raw.githubusercontent.com/devopsbert/jackinthebox/master/switch.dat'
+socket = literal_eval(requests.get(url).text)
+print(socket)
 
 GPIO.setmode(GPIO.BCM)
 
@@ -12,16 +19,10 @@ pinList = [2, 3, 4, 5]
 #loop through pins and set mode and state to low
 for i in pinList:
   GPIO.setup(i, GPIO.OUT)
-  GPIO.output(i, GPIO.HIGH)
+  GPIO.output(i, GPIO.HIGH if socket[i-1] else GPIO.LOW)
 
 #time to sleep between operations in the main loop
 SleepTimeL = 0.2
-socket = {
-    1: False,
-    2: False,
-    3: False,
-    4: False
-}
 
 try:
   while True:
