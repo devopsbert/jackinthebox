@@ -5,22 +5,29 @@ from modules.eventArgs import EventArgs as Event
 class Fixture(ABC):
     'Fixtures for the habitat'
     def __init__(self, params):
+        #initize the private __state
+        self.__state = 0
+
+        #load values from params
         try:
            self.Id = params['id']
            self.Name = params['name'] 
-           self.__state = 0
-        except Exception:
-            print("error occured")
+           self.state = params['state']
+        except Exception as exception:
+            if exception.args[0] == 'state':
+                self.state = 0
+            else:
+                print(f"error occured: {exception}")
 
     @property
     def state(self):
         return(self.__state)
 
     @state.setter 
-    def state(self, state):
-        if state != self.__state:
-            self.__state = 'on' if state == 1 else 'off' 
-            self.state_changed(Event('Set_State',state))
+    def state(self, value):
+        if self.__state != value:
+            self.__state = 'on' if value == 1 else 'off' 
+            self.state_changed(Event('Set_State',value))
             print(f'Your turned me {self.__state}!')
 
     def state_changed(self, eventArgs):
@@ -37,9 +44,6 @@ class Fixture(ABC):
 
 class SimpleFixture(Fixture):
     'Simple light fixture'
-    def __init__(self, params):
-        self.state = params['state']
-        super().__init__(self.state)
 
     def on_state_changed(self, eventArgs):
         super().on_state_changed(eventArgs)
